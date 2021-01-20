@@ -1,21 +1,27 @@
 # SyncDispatch
 
-**TODO: Add description**
+`SyncDispatch` provides an API for executing events synchronously and in-process. This is based on ideas in `:telemetry` but made slightly more general.
 
-## Installation
+## Usage
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `sync_dispatch` to your list of dependencies in `mix.exs`:
+Events are a list of atoms. You can attach to events like so:
 
 ```elixir
-def deps do
-  [
-    {:sync_dispatch, "~> 0.1.0"}
-  ]
+SyncDispatch.attach("handler-id", [:event, :name], &__MODULE__.handle_event/3)
+
+def handle_event(event, data, _config) do
+  # Do some stuff...
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/sync_dispatch](https://hexdocs.pm/sync_dispatch).
+Events are executed by calling `SyncDispatch.execute/2` like so:
 
+```elixir
+SyncDispatch.execute([:event, :name], %{some: :data})
+```
+
+Any number of handlers can be attached to an event. These handlers are all executed serially and in the executing process. Thus, there is no data copying and the handlers have access to any information stored in process dictionary. The order of execution for each handler is not guaranteed.
+
+## Should I use this?
+
+idk. This is mostly an experiment. But there's not much in here and it should perform pretty well. I'm unclear if this is a good design pattern though.
