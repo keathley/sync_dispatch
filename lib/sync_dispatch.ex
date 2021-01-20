@@ -1,18 +1,19 @@
 defmodule SyncDispatch do
   @moduledoc """
-  Documentation for `SyncDispatch`.
+  SyncDispatch provides an api for event driven handlers. Each event handler
+  is synchronously executed in the calling process. Each function is executed
   """
+  alias SyncDispatch.HandlerTable
 
-  @doc """
-  Hello world.
+  def execute(event, data) do
+    handlers = HandlerTable.handlers_for_event(event)
 
-  ## Examples
+    for {handler, event, config} <- handlers do
+      handler.(event, data, config)
+    end
+  end
 
-      iex> SyncDispatch.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def attach(id, event, fun, config \\ nil) do
+    HandlerTable.insert(id, event, fun, config)
   end
 end
